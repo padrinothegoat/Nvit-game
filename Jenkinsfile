@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Define Docker Hub credentials
-        DOCKER_HUB_CREDENTIALS = 'Docker/padrinothegoat'
+        DOCKER_HUB_CREDENTIALS = 'docker-nvitgame'
         // Define Docker image name
         DOCKER_IMAGE_NAME = 'padrinothegoat/nvit-game-app' // Update 'your-image-name' with your desired image name
         // Define the github repository URL
