@@ -5,7 +5,7 @@ pipeline {
         DOCKER_IMAGE_NAME = 'padrinothegoat/nvit-game-app'
         GITHUB_REPO_URL = 'https://github.com/padrinothegoat/Nvit-game.git'
         EC2_INSTANCE_IP = '52.39.238.216'
-        EC2_PORT = '8000'
+        EC2_PORT = '80'
     }
     stages {
         stage('Git Checkout') {
