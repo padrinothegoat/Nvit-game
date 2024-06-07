@@ -47,3 +47,13 @@ pipeline {
         }
     }
 }
+
+stage('Deploy to EC2') {
+            steps {
+                sshagent(credentials: ['EC2-SSH-Key']) {
+                    sh "ssh -o StrictHostKeyChecking=no ubuntu@${EC2_INSTANCE_IP} 'sudo docker run -d -p ${EC2_PORT}:80 ${DOCKER_IMAGE_NAME}'"
+                }
+            }
+        }
+    }
+}
