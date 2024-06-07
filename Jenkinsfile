@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         DOCKER_HUB_CREDENTIALS = 'dockerhub-repo'
-        DOCKER_IMAGE_NAME = 'nvit-game-app'
+        DOCKER_IMAGE_NAME = 'padrinothegoat/nvit-game-app'
         GITHUB_REPO_URL = 'https://github.com/padrinothegoat/Nvit-game.git'
         EC2_INSTANCE_IP = '52.39.238.216'
         EC2_PORT = '8000'
@@ -29,7 +29,7 @@ pipeline {
         stage('Deploy to EC2') {
             steps {
                 sshagent(credentials: ['EC2-SSH-Key']) {
-                    sh "ssh -o StrictHostKeyChecking=no ubuntu@${EC2_INSTANCE_IP} 'sudo docker run -d -p ${EC2_PORT}:80 ${DOCKER_IMAGE_NAME}'"
+                    sh "ssh -o StrictHostKeyChecking=no ubuntu@${EC2_INSTANCE_IP} 'sudo docker run -d -p 80:80 ${DOCKER_IMAGE_NAME}'"
                 }
             }
         }
