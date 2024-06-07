@@ -1,54 +1,32 @@
 pipeline {
     agent any
-
     environment {
-        // Define Docker Hub credentials
-        DOCKER_HUB_CREDENTIALS = 'docker-nvitgame'
-        // Define Docker image name
-        DOCKER_IMAGE_NAME = 'padrinothegoat/nvit-game-app' // Update 'your-image-name' with your desired image name
-        // Define the github repository URL
-        GITHUB_REPO_URL = 'https://github.com/padrinothegoat/Nvit-game.git'
+        DOCKER_HUB_CREDENTIALS = 'dockerhub-repo'
+        DOCKER_IMAGE_NAME = 'davidokpe/ms1-app'
+        GITHUB_REPO_URL = 'https://github.com/ugbasawo/nvit-game.git'
+        EC2_INSTANCE_IP = '35.95.149.89'
+        EC2_PORT = '8000'
     }
-
     stages {
         stage('Git Checkout') {
             steps {
-                script {
-                    echo 'Checking out code from github repository'
-                }
-                // Clone the Github repository and specify the develop branch
-                git credentialsId: 'github-credentials', url: GITHUB_REPO_URL, branch: 'main'
+                git url: GITHUB_REPO_URL, branch: 'main'
             }
         }
-
         stage('Build Docker Image') {
             steps {
-                script {
-                    echo 'Building Docker image'
-                    // List the contents of the workspace to debug and confirm the presence of Dockerfile
-                    sh 'ls -la'
-                    // Build Docker image using Dockerfile in the root directory
-                    docker.build(DOCKER_IMAGE_NAME, '-f Dockerfile .')
-                }
+                sh 'docker build -t ${DOCKER_IMAGE_NAME} .'
             }
         }
-
         stage('Push Docker Image to Docker Hub') {
             steps {
-                script {
-                    echo 'Pushing Docker image to Docker Hub'
-                    // Authenticate with Docker Hub
-                    docker.withRegistry('https://registry.hub.docker.com', DOCKER_HUB_CREDENTIALS) {
-                        // Push Docker image to Docker Hub
-                        docker.image(DOCKER_IMAGE_NAME).push('latest')
-                    }
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-repo', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                    sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
+                    sh 'docker push ${DOCKER_IMAGE_NAME}'
                 }
             }
         }
-    }
-}
-
-stage('Deploy to EC2') {
+        stage('Deploy to EC2') {
             steps {
                 sshagent(credentials: ['EC2-SSH-Key']) {
                     sh "ssh -o StrictHostKeyChecking=no ubuntu@${EC2_INSTANCE_IP} 'sudo docker run -d -p ${EC2_PORT}:80 ${DOCKER_IMAGE_NAME}'"
